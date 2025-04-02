@@ -133,9 +133,29 @@ void setFlag(void)
     transmittedFlag = true;
 }
 
+bool beginDisplay1()
+{
+    Wire.beginTransmission(DISPLAY_ADDR);
+
+    if (Wire.endTransmission() == 0) {
+        u8g2 = new DISPLAY_MODEL(U8G2_R0, U8X8_PIN_NONE);
+        u8g2->begin();
+        u8g2->clearBuffer();
+        u8g2->setFont(u8g2_font_pxplusibmvga9_mf);
+        u8g2->drawStr(0, 30, "Hello!");
+        u8g2->sendBuffer();
+        return true;
+    }
+
+    Serial.printf("Warning: Failed to find Display at 0x%0X address\n", DISPLAY_ADDR);
+    return false;
+}
+
 void setup()
 {
-    setupBoards();
+    setupBoards(true);
+
+    beginDisplay1();
 
     // When the power is turned on, a delay is required.
     delay(1500);
@@ -392,11 +412,34 @@ void loop()
 
 void drawMain()
 {
+    const uint8_t* font = u8g2_font_pxplusibmvga9_mf;
+    const int leftMargin = 5;
+    const int rowHeight = 15;
+
+    if (u8g2) {
+        u8g2->clearBuffer();
+        u8g2->setFont(font);
+
+        u8g2->setCursor(leftMargin, rowHeight * 1);
+        u8g2->print("Row 1");
+
+        // u8g2->setCursor(leftMargin, rowHeight * 2);
+        // u8g2->print("Row 2");
+        u8g2->drawButtonUTF8(leftMargin, rowHeight * 2, U8G2_BTN_INV, u8g2->getDisplayWidth()-leftMargin*2,  leftMargin,  2, "Row 2" );
+
+        u8g2->setCursor(leftMargin, rowHeight * 3);
+        u8g2->print("Row 3");
+
+        u8g2->sendBuffer();
+    }
+
+    return;
+
     if (u8g2) {
         u8g2->clearBuffer();
         u8g2->drawRFrame(0, 0, 128, 64, 5);
 
-        u8g2->setFont(u8g2_font_pxplusibmvga8_mr);
+        u8g2->setFont(u8g2_font_pxplusibmvga9_mf);
         u8g2->setCursor(22, 25);
         u8g2->print("TX:");
         u8g2->setCursor(22, 40);

@@ -13,6 +13,11 @@
 
 #include "LoRaBoards.h"
 #include <RadioLib.h>
+#include <AceButton.h>
+
+#include <vector>
+
+using namespace ace_button;
 
 #if     defined(USING_SX1276)
 #ifndef CONFIG_RADIO_FREQ
@@ -151,9 +156,41 @@ bool beginDisplay1()
     return false;
 }
 
+int selectedRow = 0;
+std::vector<std::string> rows;
+AceButton button;
+
+void handleEvent(AceButton   *button, uint8_t eventType, uint8_t buttonState)
+{
+    switch (eventType)
+    {
+    case AceButton::kEventClicked:
+        selectedRow = (selectedRow >= rows.size() - 1) ? 0 : (selectedRow + 1);
+        Serial.printf("Clicked, selected roe: %d\n", selectedRow);
+        break;
+    // case AceButton::kEventLongPressed:
+    //     break;
+    }
+}
+
 void setup()
 {
+    rows.push_back("Roq 1");
+    rows.push_back("Roq 2");
+    rows.push_back("Roq 3");
+    rows.push_back("Roq 4");
+    rows.push_back("Roq 5");
+    rows.push_back("Roq 6");
+    rows.push_back("Roq 7");
+
     setupBoards(true);
+
+    pinMode(BUTTON_PIN, INPUT_PULLUP);
+    button.init(BUTTON_PIN);
+    ButtonConfig *buttonConfig = button.getButtonConfig();
+    buttonConfig->setEventHandler(handleEvent);
+    buttonConfig->setFeature(ButtonConfig::kFeatureClick);
+    // buttonConfig->setFeature(ButtonConfig::kFeatureLongPress);
 
     beginDisplay1();
 
@@ -364,8 +401,18 @@ void setup()
     drawMain();
 }
 
+unsigned long lastDraw = 0;
+
 void loop()
 {
+    button.check();
+    if (millis() - lastDraw > 100)
+    {
+        drawMain();
+        lastDraw = millis();
+    }
+    return;
+
     // check if the previous transmission finished
     if (transmittedFlag) {
 
@@ -409,26 +456,69 @@ void loop()
     }
 }
 
+const uint8_t* font = u8g2_font_pxplusibmvga9_mf;
+const int leftMargin = 5;
+const int rowHeight = 16;
+
+int offset = 0;
+
+void drawRow(int index, bool selected)
+{
+    int y = rowHeight * (index + 1) + offset;
+
+    if (selected)
+    {
+        u8g2->drawBox(0, y - rowHeight + 3, u8g2->getDisplayWidth(), rowHeight);
+        u8g2->setDrawColor(0);
+    }
+
+    u8g2->setCursor(leftMargin, y);
+    u8g2->print(rows[index].c_str());
+
+    if (selected)
+    {
+        u8g2->setDrawColor(1);
+    }
+}
 
 void drawMain()
 {
-    const uint8_t* font = u8g2_font_pxplusibmvga9_mf;
-    const int leftMargin = 5;
-    const int rowHeight = 15;
+    int selectedRowTop = selectedRow * rowHeight + offset;
+    int selectedRowBottom = selectedRowTop + rowHeight + offset;
+
+    if (selectedRowTop < 0)
+    {
+        offset -= selectedRowTop;
+    }
+    else if (selectedRowBottom > u8g2->getDisplayHeight())
+    {
+        offset -= (selectedRowBottom - u8g2->getDisplayHeight());
+    }
 
     if (u8g2) {
         u8g2->clearBuffer();
         u8g2->setFont(font);
+        u8g2->setFontMode(1);
+        u8g2->setDrawColor(1);
 
-        u8g2->setCursor(leftMargin, rowHeight * 1);
-        u8g2->print("Row 1");
+        // for (int r = 0; r < rows.size(); r++)
+        // {
+        //     drawRow(r, r == selectedRow);
+        // }
 
-        // u8g2->setCursor(leftMargin, rowHeight * 2);
-        // u8g2->print("Row 2");
-        u8g2->drawButtonUTF8(leftMargin, rowHeight * 2, U8G2_BTN_INV, u8g2->getDisplayWidth()-leftMargin*2,  leftMargin,  2, "Row 2" );
+        int w = 32;
+        int h = 16;
+        for (int i = 0; i < 4; i++)
+        {
+            int top = i * h;
+            int left = i * w;
+            int bottom = top + h - 1;
+            int right = left + w - 1;
 
-        u8g2->setCursor(leftMargin, rowHeight * 3);
-        u8g2->print("Row 3");
+            u8g2->drawFrame(i * w, i * h, w, h);
+            u8g2->setCursor(left + 2, bottom - 4);
+            u8g2->print("By");
+        }
 
         u8g2->sendBuffer();
     }

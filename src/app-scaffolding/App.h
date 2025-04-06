@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <Task.h>
 #include "BetterAceButton.h"
+#include "Menu.h"
 #include "LoRaBoards.h"
 
 class App

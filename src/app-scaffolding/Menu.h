@@ -6,6 +6,8 @@
 #include <memory>
 #include <vector>
 
+#include "IMenuPainter.h"
+
 class Menu;
 class MenuBase;
 class SubMenu;
@@ -13,12 +15,12 @@ class SubMenu;
 struct MenuItem
 {
     Menu* menu; // TODO: get rid of
-    std::wstring text;
+    std::string text;
     std::function<void()> action;
     SubMenu* subMenu;
 
-    MenuItem(Menu* menu_, const wchar_t* text_, std::function<void()> action_);
-    MenuItem(Menu* menu_, const wchar_t* text_, MenuBase* parent_);
+    MenuItem(Menu* menu_, const char* text_, std::function<void()> action_);
+    MenuItem(Menu* menu_, const char* text_, MenuBase* parent_);
     ~MenuItem();
 };
 
@@ -34,14 +36,15 @@ protected:
     virtual ~MenuBase();
 
 public:
-    MenuItem& addItem(const wchar_t* text, std::function<void()> action);
-    SubMenu& addMenu(const wchar_t* text);
+    MenuItem& addItem(const char* text, std::function<void()> action);
+    SubMenu& addMenu(const char* text);
 
     virtual void up();
     virtual void down();
     virtual void select();
 
-    virtual void draw();
+    virtual void draw(IMenuPainter* painter);
+    virtual void log();
 };
 
 class MainMenu : public MenuBase
@@ -57,7 +60,7 @@ class SubMenu : public MenuBase
 {
 protected:
     MenuBase* _parent;
-    MenuItem _backItem;
+    MenuItem _backItem; // TODO: get rid of
 
 public:
     SubMenu(Menu* menu, MenuBase* parent);
@@ -66,7 +69,8 @@ public:
     virtual void down();
     virtual void select();
 
-    virtual void draw();
+    virtual void draw(IMenuPainter* painter);
+    virtual void log();
 };
 
 class Menu
@@ -78,14 +82,15 @@ protected:
 public:
     Menu();
 
-    MenuItem& addItem(const wchar_t* text, std::function<void()> action);
-    SubMenu& addMenu(const wchar_t* text);
+    MenuItem& addItem(const char* text, std::function<void()> action);
+    SubMenu& addMenu(const char* text);
 
     void up();
     void down();
     void select();
 
-    void draw();
+    void draw(IMenuPainter* painter);
+    virtual void log();
 
     friend class MenuBase;
     friend class SubMenu;

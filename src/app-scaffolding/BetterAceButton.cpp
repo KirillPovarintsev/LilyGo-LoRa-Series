@@ -5,15 +5,19 @@ void onButtonEvent(ace_button::AceButton* button, uint8_t eventType, uint8_t but
     switch (eventType)
     {
     case ace_button::AceButton::kEventPressed:
+        Serial.println("AceButton::kEventPressed");
         ((BetterAceButton*)button)->onButtonDown();
         break;
     case ace_button::AceButton::kEventReleased:
+        Serial.println("AceButton::kEventReleased");
         ((BetterAceButton*)button)->onButtonUp();
         break;
     case ace_button::AceButton::kEventClicked:
+        Serial.println("AceButton::kEventClicked");
         ((BetterAceButton*)button)->onButtonClick();
         break;
     case ace_button::AceButton::kEventLongPressed:
+    Serial.println("AceButton::kEventLongPressed");
         ((BetterAceButton*)button)->onButtonLongPress();
         break;
     }
@@ -36,6 +40,7 @@ BetterAceButton::BetterAceButton(uint8_t pin,
 
     ace_button::ButtonConfig* buttonConfig = getButtonConfig();
 
+    buttonConfig->setClickDelay(300);
     buttonConfig->setEventHandler(onButtonEvent);
     buttonConfig->setFeature(ace_button::ButtonConfig::kFeatureClick);
     buttonConfig->setFeature(ace_button::ButtonConfig::kFeatureLongPress);

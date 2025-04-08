@@ -1,6 +1,8 @@
+#include <Arduino.h>
+
 #include "Menu.h"
 
-MenuItem::MenuItem(Menu* menu_, const wchar_t* text_, std::function<void()> action_) :
+MenuItem::MenuItem(Menu* menu_, const char* text_, std::function<void()> action_) :
     menu(menu_),
     text(text_),
     action(action_),
@@ -8,7 +10,7 @@ MenuItem::MenuItem(Menu* menu_, const wchar_t* text_, std::function<void()> acti
 {
 }
 
-MenuItem::MenuItem(Menu* menu_, const wchar_t* text_, MenuBase* parent_) :
+MenuItem::MenuItem(Menu* menu_, const char* text_, MenuBase* parent_) :
     menu(menu_),
     text(text_),
     subMenu(new SubMenu(menu_, parent_))
@@ -34,14 +36,14 @@ MenuBase::~MenuBase()
     }
 }
 
-MenuItem& MenuBase::addItem(const wchar_t* text, std::function<void()> action)
+MenuItem& MenuBase::addItem(const char* text, std::function<void()> action)
 {
     auto item = new MenuItem(_menu, text, action);
     _items.push_back(item);
     return *item;
 }
 
-SubMenu& MenuBase::addMenu(const wchar_t* text)
+SubMenu& MenuBase::addMenu(const char* text)
 {
     auto item = new MenuItem(_menu, text, this);
     _items.push_back(item);
@@ -72,8 +74,19 @@ void MenuBase::select()
     }
 }
 
-void MenuBase::draw()
+void MenuBase::log()
 {
+    Serial.println(_items[_currentItem]->text.c_str());
+}
+
+void MenuBase::draw(IMenuPainter* painter)
+{
+    painter->paintMenu(_currentItem);
+
+    for (int i = 0; i < _items.size(); i++)
+    {
+        painter->paintItem(i, _items[i]->text.c_str(), i == _currentItem);
+    }
 }
 
 MainMenu::MainMenu(Menu* menu) : MenuBase(menu)
@@ -97,7 +110,7 @@ void MainMenu::down()
 SubMenu::SubMenu(Menu* menu, MenuBase* parent) :
     MenuBase(menu),
     _parent(parent),
-    _backItem(_menu, L"Back", [this](){ _menu->_currentMenu = _parent; _currentItem = 0; })
+    _backItem(_menu, "< Back", [this](){ _menu->_currentMenu = _parent; _currentItem = 0; })
 {
 }
 
@@ -127,15 +140,21 @@ void SubMenu::select()
     }
 }
 
-void SubMenu::draw()
+void SubMenu::log()
 {
-    if (_currentItem == -1)
+    Serial.println(_currentItem == -1 ? _backItem.text.c_str() : _items[_currentItem]->text.c_str());
+}
+
+void SubMenu::draw(IMenuPainter* painter)
+{
+    painter->paintMenu(_currentItem == -1 ? _items.size() : _currentItem);
+
+    for (int i = 0; i < _items.size(); i++)
     {
+        painter->paintItem(i, _items[i]->text.c_str(), i == _currentItem);
     }
-    else
-    {
-        MenuBase::draw();
-    }
+
+    painter->paintItem(_items.size(), _backItem.text.c_str(), _currentItem == -1);
 }
 
 Menu::Menu() :
@@ -144,12 +163,12 @@ Menu::Menu() :
 {
 }
 
-MenuItem& Menu::addItem(const wchar_t* text, std::function<void()> action)
+MenuItem& Menu::addItem(const char* text, std::function<void()> action)
 {
     return _mainMenu.addItem(text, action);
 }
 
-SubMenu& Menu::addMenu(const wchar_t* text)
+SubMenu& Menu::addMenu(const char* text)
 {
     return _mainMenu.addMenu(text);
 }
@@ -157,19 +176,30 @@ SubMenu& Menu::addMenu(const wchar_t* text)
 void Menu::up()
 {
     _currentMenu->up();
+
+    log();
 }
 
 void Menu::down()
 {
     _currentMenu->down();
+
+    log();
 }
 
 void Menu::select()
 {
     _currentMenu->select();
+
+    log();
 }
 
-void Menu::draw()
+void Menu::log()
 {
-    _currentMenu->draw();
+    _currentMenu->log();
+}
+
+void Menu::draw(IMenuPainter* painter)
+{
+    _currentMenu->draw(painter);
 }

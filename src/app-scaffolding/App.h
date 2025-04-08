@@ -7,7 +7,7 @@
 #include "Menu.h"
 #include "LoRaBoards.h"
 
-class App
+class App : IMenuPainter
 {
 public:
     App();
@@ -16,6 +16,11 @@ public:
 public:
     void setup();
     void loop();
+
+// IMenuPainter
+public:
+    virtual void paintMenu(int currentItemIndex);
+    virtual void paintItem(int index, const char* text, bool selected);
 
 private:
     void onDraw();
@@ -29,6 +34,7 @@ private:
 private:
     BetterAceButton _button{BUTTON_PIN, [](){}, [](){}, [this](){ onButtonClick(); }, [this](){ onButtonLongPress(); }};
     DISPLAY_MODEL _u8g2{U8G2_R0, U8X8_PIN_NONE};
+    Menu _menu;
 
 private:
     Task _draw{[this](){ onDraw(); }, 100};

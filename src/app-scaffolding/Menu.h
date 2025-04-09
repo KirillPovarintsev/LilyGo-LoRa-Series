@@ -14,13 +14,12 @@ class SubMenu;
 
 struct MenuItem
 {
-    Menu* menu; // TODO: get rid of
     std::string text;
     std::function<void()> action;
     SubMenu* subMenu;
 
-    MenuItem(Menu* menu_, const char* text_, std::function<void()> action_);
-    MenuItem(Menu* menu_, const char* text_, MenuBase* parent_);
+    MenuItem(const char* text_, std::function<void()> action_);
+    MenuItem(const char* text_, MenuBase* parent_);
     ~MenuItem();
 };
 
@@ -33,6 +32,7 @@ protected:
 
 protected:
     MenuBase(Menu* menu);
+    MenuBase(MenuBase* parent);
     virtual ~MenuBase();
 
 public:
@@ -44,7 +44,6 @@ public:
     virtual void select();
 
     virtual void draw(IMenuPainter* painter);
-    virtual void log();
 };
 
 class MainMenu : public MenuBase
@@ -63,14 +62,13 @@ protected:
     MenuItem _backItem; // TODO: get rid of
 
 public:
-    SubMenu(Menu* menu, MenuBase* parent);
+    SubMenu(MenuBase* parent);
 
     virtual void up();
     virtual void down();
     virtual void select();
 
     virtual void draw(IMenuPainter* painter);
-    virtual void log();
 };
 
 class Menu
@@ -90,7 +88,6 @@ public:
     void select();
 
     void draw(IMenuPainter* painter);
-    virtual void log();
 
     friend class MenuBase;
     friend class SubMenu;

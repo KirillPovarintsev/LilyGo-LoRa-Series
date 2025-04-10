@@ -15,12 +15,19 @@ class SubMenu;
 struct MenuItem
 {
     std::string text;
+    std::function<std::string()> textCallback;
     std::function<void()> action;
     SubMenu* subMenu;
 
     MenuItem(const char* text_, std::function<void()> action_);
+    MenuItem(std::function<std::string()> textCallback_, std::function<void()> action_);
     MenuItem(const char* text_, MenuBase* parent_);
     ~MenuItem();
+
+    std::string getText()
+    {
+        return textCallback ? textCallback() : text;
+    }
 };
 
 class MenuBase
@@ -37,6 +44,7 @@ protected:
 
 public:
     MenuItem& addItem(const char* text, std::function<void()> action);
+    MenuItem& addItem(std::function<std::string()> textCallback, std::function<void()> action);
     SubMenu& addMenu(const char* text);
 
     virtual void up();
@@ -81,6 +89,7 @@ public:
     Menu();
 
     MenuItem& addItem(const char* text, std::function<void()> action);
+    MenuItem& addItem(std::function<std::string()> textCallback, std::function<void()> action);
     SubMenu& addMenu(const char* text);
 
     void up();

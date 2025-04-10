@@ -2,6 +2,15 @@
 
 MenuItem::MenuItem(const char* text_, std::function<void()> action_) :
     text(text_),
+    textCallback(nullptr),
+    action(action_),
+    subMenu(nullptr)
+{
+}
+
+MenuItem::MenuItem(std::function<std::string()> textCallback_, std::function<void()> action_) :
+    text(""),
+    textCallback(textCallback_),
     action(action_),
     subMenu(nullptr)
 {
@@ -9,6 +18,7 @@ MenuItem::MenuItem(const char* text_, std::function<void()> action_) :
 
 MenuItem::MenuItem(const char* text_, MenuBase* parent_) :
     text(text_),
+    textCallback(nullptr),
     subMenu(new SubMenu(parent_))
 {
 }
@@ -41,6 +51,13 @@ MenuBase::~MenuBase()
 MenuItem& MenuBase::addItem(const char* text, std::function<void()> action)
 {
     auto item = new MenuItem(text, action);
+    _items.push_back(item);
+    return *item;
+}
+
+MenuItem& MenuBase::addItem(std::function<std::string()> textCallback, std::function<void()> action)
+{
+    auto item = new MenuItem(textCallback, action);
     _items.push_back(item);
     return *item;
 }
@@ -82,7 +99,7 @@ void MenuBase::draw(IMenuPainter* painter)
 
     for (int i = 0; i < _items.size(); i++)
     {
-        painter->paintItem(i, _items[i]->text.c_str(), i == _currentItem);
+        painter->paintItem(i, _items[i]->getText().c_str(), i == _currentItem);
     }
 }
 
@@ -107,7 +124,7 @@ void MainMenu::down()
 SubMenu::SubMenu(MenuBase* parent) :
     MenuBase(parent),
     _parent(parent),
-    _backItem("Back", [this](){ _menu->_currentMenu = _parent; _currentItem = 0; })
+    _backItem("...Back", [this](){ _menu->_currentMenu = _parent; _currentItem = 0; })
 {
 }
 
@@ -139,7 +156,7 @@ void SubMenu::select()
 
 void SubMenu::draw(IMenuPainter* painter)
 {
-    painter->paintMenu(_currentItem);
+    painter->paintMenu(_currentItem == -1 ? _items.size() : _currentItem);
 
     for (int i = 0; i < _items.size(); i++)
     {
@@ -158,6 +175,11 @@ Menu::Menu() :
 MenuItem& Menu::addItem(const char* text, std::function<void()> action)
 {
     return _mainMenu.addItem(text, action);
+}
+
+MenuItem& Menu::addItem(std::function<std::string()> textCallback, std::function<void()> action)
+{
+    return _mainMenu.addItem(textCallback, action);
 }
 
 SubMenu& Menu::addMenu(const char* text)

@@ -22,14 +22,26 @@ const int screenWidth = 128;
 const int screenHeight = 64;
 int offset = 0;
 
+bool isOn1 = false;
+bool isOn2 = true;
+char buff[25];
+
 App::App()
 {
-    auto& action1 = _menu.addItem("Action 1", []() {});
-    auto& action2 = _menu.addItem("Action 2", []() {});
-    auto& submenu1 = _menu.addMenu("Sub-menu 1 >");
+    auto& action1 = _menu.addItem([]()
+    {
+        std::sprintf(buff, "O1 is: %s", isOn1 ? "ON" : "OFF");
+        return buff;
+    }, []() { isOn1 = !isOn1; });
+    auto& action2 = _menu.addItem([]()
+    {
+        std::sprintf(buff, "O2 is: %s", isOn2 ? "ON" : "OFF");
+        return buff;
+    }, []() { isOn2 = !isOn2; });
+    auto& submenu1 = _menu.addMenu("More...");
     auto& submenu1action1 = submenu1.addItem("Action 1-1", []() {});
     auto& submenu1action2 = submenu1.addItem("Action 1-2", []() {});
-    auto& submenu1submenu1 = submenu1.addMenu("Sub-menu 1-1 >");
+    auto& submenu1submenu1 = submenu1.addMenu("Even more...");
     auto& submenu1submenu1action1 = submenu1submenu1.addItem("Action 1-1-1", []() {});
     auto& submenu1submenu1action2 = submenu1submenu1.addItem("Action 1-2-1", []() {});
 }

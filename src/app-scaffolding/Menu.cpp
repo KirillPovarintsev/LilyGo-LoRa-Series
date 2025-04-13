@@ -160,10 +160,10 @@ void SubMenu::draw(IMenuPainter* painter)
 
     for (int i = 0; i < _items.size(); i++)
     {
-        painter->paintItem(i, _items[i]->text.c_str(), i == _currentItem);
+        painter->paintItem(i, _items[i]->getText().c_str(), i == _currentItem);
     }
 
-    painter->paintItem(_items.size(), _backItem.text.c_str(), _currentItem == -1);
+    painter->paintItem(_items.size(), _backItem.getText().c_str(), _currentItem == -1);
 }
 
 Menu::Menu() :

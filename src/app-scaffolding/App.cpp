@@ -38,9 +38,13 @@ App::App()
         std::sprintf(buff, "O2 is: %s", isOn2 ? "ON" : "OFF");
         return buff;
     }, []() { isOn2 = !isOn2; });
+    auto& action3 = _menu.addItem("Action 3", []() {});
+    auto& action4 = _menu.addItem("Action 4", []() {});
     auto& submenu1 = _menu.addMenu("More...");
     auto& submenu1action1 = submenu1.addItem("Action 1-1", []() {});
     auto& submenu1action2 = submenu1.addItem("Action 1-2", []() {});
+    auto& submenu1action3 = submenu1.addItem("Action 1-3", []() {});
+    auto& submenu1action4 = submenu1.addItem("Action 1-4", []() {});
     auto& submenu1submenu1 = submenu1.addMenu("Even more...");
     auto& submenu1submenu1action1 = submenu1submenu1.addItem("Action 1-1-1", []() {});
     auto& submenu1submenu1action2 = submenu1submenu1.addItem("Action 1-2-1", []() {});
@@ -77,7 +81,7 @@ void App::onButtonLongPress()
 void App::paintMenu(int currentItemIndex)
 {
     int selectedRowTop = currentItemIndex * rowHeight + offset;
-    int selectedRowBottom = currentItemIndex + rowHeight - 1;
+    int selectedRowBottom = selectedRowTop + rowHeight - 1;
 
     if (selectedRowTop < 0)
     {
@@ -117,46 +121,46 @@ void App::onDraw()
     _u8g2.sendBuffer();
 }
 
-void App::drawMenu()
-{
-    int selectedRowTop = selectedRow * rowHeight + offset;
-    int selectedRowBottom = selectedRowTop + rowHeight - 1;
+// void App::drawMenu()
+// {
+//     int selectedRowTop = selectedRow * rowHeight + offset;
+//     int selectedRowBottom = selectedRowTop + rowHeight - 1;
 
-    if (selectedRowTop < 0)
-    {
-        offset -= selectedRowTop;
-    }
-    else if (selectedRowBottom >= screenHeight)
-    {
-        offset -= (selectedRowBottom - screenHeight + 1);
-    }
+//     if (selectedRowTop < 0)
+//     {
+//         offset -= selectedRowTop;
+//     }
+//     else if (selectedRowBottom >= screenHeight)
+//     {
+//         offset -= (selectedRowBottom - screenHeight + 1);
+//     }
 
-    _u8g2.setFont(font);
-    _u8g2.setFontMode(1);
-    _u8g2.setDrawColor(1);
+//     _u8g2.setFont(font);
+//     _u8g2.setFontMode(1);
+//     _u8g2.setDrawColor(1);
 
-    for (int r = 0; r < rows.size(); r++)
-    {
-        drawMenuItem(r, r == selectedRow);
-    }
-}
+//     for (int r = 0; r < rows.size(); r++)
+//     {
+//         drawMenuItem(r, r == selectedRow);
+//     }
+// }
 
-void App::drawMenuItem(int index, bool selected)
-{
-    int top = index * rowHeight + offset;
-    int bottom = top + rowHeight - 1;
+// void App::drawMenuItem(int index, bool selected)
+// {
+//     int top = index * rowHeight + offset;
+//     int bottom = top + rowHeight - 1;
 
-    if (selected)
-    {
-        _u8g2.drawBox(0, top, screenWidth, rowHeight);
-        _u8g2.setDrawColor(0);
-    }
+//     if (selected)
+//     {
+//         _u8g2.drawBox(0, top, screenWidth, rowHeight);
+//         _u8g2.setDrawColor(0);
+//     }
 
-    _u8g2.setCursor(leftMargin, bottom - 3);
-    _u8g2.print(rows[index].c_str());
+//     _u8g2.setCursor(leftMargin, bottom - 3);
+//     _u8g2.print(rows[index].c_str());
 
-    if (selected)
-    {
-        _u8g2.setDrawColor(1);
-    }
-}
+//     if (selected)
+//     {
+//         _u8g2.setDrawColor(1);
+//     }
+// }

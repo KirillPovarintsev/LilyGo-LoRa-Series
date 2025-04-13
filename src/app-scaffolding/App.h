@@ -27,9 +27,9 @@ private:
     void onButtonClick();
     void onButtonLongPress();
 
-private:
-    void drawMenu();
-    void drawMenuItem(int index, bool selected);
+// private:
+//     void drawMenu();
+//     void drawMenuItem(int index, bool selected);
 
 private:
     BetterAceButton _button{BUTTON_PIN, [](){}, [](){}, [this](){ onButtonClick(); }, [this](){ onButtonLongPress(); }};

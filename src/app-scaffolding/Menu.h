@@ -14,20 +14,19 @@ class SubMenu;
 
 struct MenuItem
 {
+private:
     std::string text;
     std::function<std::string()> textCallback;
     std::function<void()> action;
     SubMenu* subMenu;
 
+public:    
     MenuItem(const char* text_, std::function<void()> action_);
     MenuItem(std::function<std::string()> textCallback_, std::function<void()> action_);
     MenuItem(const char* text_, MenuBase* parent_);
     ~MenuItem();
 
-    std::string getText()
-    {
-        return textCallback ? textCallback() : text;
-    }
+    inline std::string getText() { return textCallback ? textCallback() : text; }
 };
 
 class MenuBase

@@ -14,7 +14,8 @@ class SubMenu;
 
 struct MenuItem
 {
-private:
+// TODO: private
+public:
     std::string text;
     std::function<std::string()> textCallback;
     std::function<void()> action;

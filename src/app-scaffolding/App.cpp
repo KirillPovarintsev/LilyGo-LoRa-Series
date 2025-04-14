@@ -80,6 +80,8 @@ void App::onButtonLongPress()
 
 void App::paintMenu(int currentItemIndex)
 {
+    offset = 0;
+
     int selectedRowTop = currentItemIndex * rowHeight + offset;
     int selectedRowBottom = selectedRowTop + rowHeight - 1;
 

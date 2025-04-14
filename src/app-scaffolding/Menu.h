@@ -57,33 +57,27 @@ public:
     virtual void select();
 
     virtual void draw(IMenuPainter* painter);
+
+protected:
+    virtual int newItemPosition() { return _items.size(); }
 };
 
 class MainMenu : public MenuBase
 {
 public:
     MainMenu(Menu* menu);
-
-    virtual void up();
-    virtual void down();
 };
 
 class SubMenu : public MenuBase
 {
 protected:
     MenuBase* _parent;
-    MenuItem _backItem; // TODO: get rid of
 
 public:
     SubMenu(MenuBase* parent);
 
-    virtual std::string currentItem() { return _currentItem == -1 ? _backItem.getText() : _items[_currentItem]->getText(); }
-
-    virtual void up();
-    virtual void down();
-    virtual void select();
-
-    virtual void draw(IMenuPainter* painter);
+protected:
+    virtual int newItemPosition() { return _items.size() - 1; }
 };
 
 class Menu

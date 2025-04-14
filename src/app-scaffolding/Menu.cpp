@@ -70,14 +70,14 @@ MenuBase::~MenuBase()
 MenuItem& MenuBase::addItem(const char* text, std::function<void()> action)
 {
     auto item = new MenuItem(text, action);
-    _items.push_back(item);
+    _items.insert(_items.begin() + newItemPosition(), item);
     return *item;
 }
 
 MenuItem& MenuBase::addItem(std::function<std::string()> textCallback, std::function<void()> action)
 {
     auto item = new MenuItem(textCallback, action);
-    _items.push_back(item);
+    _items.insert(_items.begin() + newItemPosition(), item);
     return *item;
 }
 
@@ -85,7 +85,7 @@ SubMenu& MenuBase::addMenu(const char* text)
 {
     auto subMenu = new SubMenu(this);
     auto item = new MenuItem(text, subMenu);
-    _items.push_back(item);
+    _items.insert(_items.begin() + newItemPosition(), item);
     return *subMenu;
 }
 
@@ -97,11 +97,15 @@ void MenuBase::makeCurrent()
 void MenuBase::up()
 {
     _currentItem--;
+
+    if (_currentItem < 0) _currentItem = _items.size() - 1;
 }
 
 void MenuBase::down()
 {
     _currentItem++;
+
+    if (_currentItem >= _items.size()) _currentItem = 0;
 }
 
 void MenuBase::select()
@@ -123,63 +127,11 @@ MainMenu::MainMenu(Menu* menu) : MenuBase(menu)
 {
 }
 
-void MainMenu::up()
-{
-    MenuBase::up();
-
-    if (_currentItem < 0) _currentItem = _items.size() - 1;
-}
-
-void MainMenu::down()
-{
-    MenuBase::down();
-
-    if (_currentItem >= _items.size()) _currentItem = 0;
-}
-
 SubMenu::SubMenu(MenuBase* parent) :
     MenuBase(parent),
-    _parent(parent),
-    _backItem("...Back", [this](){ _menu->_currentMenu = _parent; _currentItem = 0; })
+    _parent(parent)
 {
-}
-
-void SubMenu::up()
-{
-    MenuBase::up();
-
-    if (_currentItem < -1) _currentItem = _items.size() - 1;
-}
-
-void SubMenu::down()
-{
-    MenuBase::down();
-
-    if (_currentItem >= _items.size()) _currentItem = -1;
-}
-
-void SubMenu::select()
-{
-    if (_currentItem == -1)
-    {
-        _backItem.select();
-    }
-    else
-    {
-        MenuBase::select();
-    }
-}
-
-void SubMenu::draw(IMenuPainter* painter)
-{
-    painter->paintMenu(_currentItem == -1 ? _items.size() : _currentItem);
-
-    for (int i = 0; i < _items.size(); i++)
-    {
-        painter->paintItem(i, _items[i]->getText().c_str(), i == _currentItem);
-    }
-
-    painter->paintItem(_items.size(), _backItem.getText().c_str(), _currentItem == -1);
+    _items.push_back(new MenuItem("...Back", [this]() { _menu->_currentMenu = _parent; _currentItem = 0; }));
 }
 
 Menu::Menu() :

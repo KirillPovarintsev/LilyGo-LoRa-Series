@@ -26,7 +26,9 @@ int main()
     auto& submenu1submenu1action1 = submenu1submenu1.addItem("Action 1-1-1", []() {});
     auto& submenu1submenu1action2 = submenu1submenu1.addItem("Action 1-2-1", []() {});
 
-    _menu.log([](auto s) { std::cout << s << "\n"; });
+    auto logToStdOut = std::function<void(std::string)>([](auto s) { std::cout << s << "\n"; });
+
+    _menu.log(logToStdOut);
 
     int c;
 
@@ -38,15 +40,15 @@ int main()
         {
         case KEY_UP:
             _menu.up();
-            _menu.log([](auto s) { std::cout << s << "\n"; });
+            _menu.log(logToStdOut);
             break;
         case KEY_DOWN:
             _menu.down();
-            _menu.log([](auto s) { std::cout << s << "\n"; });
+            _menu.log(logToStdOut);
             break;
         case KEY_ENTER:
             _menu.select();
-            _menu.log([](auto s) { std::cout << s << "\n"; });
+            _menu.log(logToStdOut);
             break;
         }
 

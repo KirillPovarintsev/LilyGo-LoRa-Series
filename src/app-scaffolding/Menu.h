@@ -23,13 +23,11 @@ private:
 public:    
     MenuItem(const char* text_, std::function<void()> action_);
     MenuItem(std::function<std::string()> textCallback_, std::function<void()> action_);
-    MenuItem(const char* text_, MenuBase* parent_);
     MenuItem(const char* text_, SubMenu* subMenu_);
     ~MenuItem();
 
-    void select();
-
     inline std::string getText() { return textCallback ? textCallback() : text; }
+    inline void invokeAction() { action(); }
 };
 
 class MenuBase
@@ -49,7 +47,7 @@ public:
     MenuItem& addItem(std::function<std::string()> textCallback, std::function<void()> action);
     SubMenu& addMenu(const char* text);
 
-    virtual std::string currentItem() { return _items[_currentItem]->getText(); }
+    void logCurrentItem(std::function<void(std::string)> receiver) { receiver(_items[_currentItem]->getText()); }
     void makeCurrent();
 
     virtual void up();
@@ -93,9 +91,9 @@ public:
     MenuItem& addItem(std::function<std::string()> textCallback, std::function<void()> action);
     SubMenu& addMenu(const char* text);
 
-    void log(std::function<void(std::string)> receiver)
+    void logCurrentItem(std::function<void(std::string)> receiver)
     {
-        receiver(_currentMenu->currentItem());
+        _currentMenu->logCurrentItem(receiver);
     }
 
     void up();

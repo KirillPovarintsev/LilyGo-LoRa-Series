@@ -28,7 +28,7 @@ int main()
 
     auto logToStdOut = std::function<void(std::string)>([](auto s) { std::cout << s << "\n"; });
 
-    _menu.log(logToStdOut);
+    _menu.logCurrentItem(logToStdOut);
 
     int c;
 
@@ -40,15 +40,15 @@ int main()
         {
         case KEY_UP:
             _menu.up();
-            _menu.log(logToStdOut);
+            _menu.logCurrentItem(logToStdOut);
             break;
         case KEY_DOWN:
             _menu.down();
-            _menu.log(logToStdOut);
+            _menu.logCurrentItem(logToStdOut);
             break;
         case KEY_ENTER:
             _menu.select();
-            _menu.log(logToStdOut);
+            _menu.logCurrentItem(logToStdOut);
             break;
         }
 

@@ -16,16 +16,10 @@ MenuItem::MenuItem(std::function<std::string()> textCallback_, std::function<voi
 {
 }
 
-MenuItem::MenuItem(const char* text_, MenuBase* parent_) :
-    text(text_),
-    textCallback(nullptr),
-    subMenu(new SubMenu(parent_))
-{
-}
-
 MenuItem::MenuItem(const char* text_, SubMenu* subMenu_) :
     text(text_),
     textCallback(nullptr),
+    action([this]() { subMenu->makeCurrent(); }),
     subMenu(subMenu_)
 {
 }
@@ -33,18 +27,6 @@ MenuItem::MenuItem(const char* text_, SubMenu* subMenu_) :
 MenuItem::~MenuItem()
 {
     if (subMenu) delete subMenu;
-}
-
-void MenuItem::select()
-{
-    if (subMenu)
-    {
-        subMenu->makeCurrent();
-    }
-    else if (action)
-    {
-        action();
-    }
 }
 
 MenuBase::MenuBase(Menu* menu) :
@@ -110,7 +92,7 @@ void MenuBase::down()
 
 void MenuBase::select()
 {
-    _items[_currentItem]->select();
+    _items[_currentItem]->invokeAction();
 }
 
 void MenuBase::draw(IMenuPainter* painter)

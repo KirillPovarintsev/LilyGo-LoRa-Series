@@ -1,32 +1,15 @@
 #include "Menu.h"
 
-MenuItem::MenuItem(const char* text_, std::function<void()> action_) :
-    text(text_),
-    textCallback(nullptr),
-    action(action_),
-    subMenu(nullptr)
-{
-}
-
-MenuItem::MenuItem(std::function<std::string()> textCallback_, std::function<void()> action_) :
-    text(""),
-    textCallback(textCallback_),
-    action(action_),
-    subMenu(nullptr)
-{
-}
-
-MenuItem::MenuItem(const char* text_, SubMenu* subMenu_) :
-    text(text_),
-    textCallback(nullptr),
-    action([this]() { subMenu->makeCurrent(); }),
-    subMenu(subMenu_)
+MenuItem::MenuItem(std::function<std::string()> textCallback, std::function<void()> action, SubMenu* subMenu = nullptr) :
+    _textCallback(textCallback),
+    _action(action),
+    _subMenu(subMenu)
 {
 }
 
 MenuItem::~MenuItem()
 {
-    if (subMenu) delete subMenu;
+    if (_subMenu) delete _subMenu;
 }
 
 MenuBase::MenuBase(Menu* menu) :
@@ -51,9 +34,7 @@ MenuBase::~MenuBase()
 
 MenuItem& MenuBase::addItem(const char* text, std::function<void()> action)
 {
-    auto item = new MenuItem(text, action);
-    _items.insert(_items.begin() + newItemPosition(), item);
-    return *item;
+    return addItem([text]() { return std::string(text); }, action);
 }
 
 MenuItem& MenuBase::addItem(std::function<std::string()> textCallback, std::function<void()> action)
@@ -66,14 +47,9 @@ MenuItem& MenuBase::addItem(std::function<std::string()> textCallback, std::func
 SubMenu& MenuBase::addMenu(const char* text)
 {
     auto subMenu = new SubMenu(this);
-    auto item = new MenuItem(text, subMenu);
+    auto item = new MenuItem([text]() { return std::string(text); }, [this, subMenu]() { _menu->_currentMenu = subMenu; }, subMenu);
     _items.insert(_items.begin() + newItemPosition(), item);
     return *subMenu;
-}
-
-void MenuBase::makeCurrent()
-{
-    _menu->_currentMenu = this;
 }
 
 void MenuBase::up()
@@ -113,7 +89,7 @@ SubMenu::SubMenu(MenuBase* parent) :
     MenuBase(parent),
     _parent(parent)
 {
-    _items.push_back(new MenuItem("...Back", [this]() { _menu->_currentMenu = _parent; _currentItem = 0; }));
+    _items.push_back(new MenuItem([]() { return std::string("...Back"); }, [this]() { _menu->_currentMenu = _parent; _currentItem = 0; }));
 }
 
 Menu::Menu() :

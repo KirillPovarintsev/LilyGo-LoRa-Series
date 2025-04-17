@@ -89,7 +89,7 @@ SubMenu::SubMenu(MenuBase* parent) :
     MenuBase(parent),
     _parent(parent)
 {
-    _items.push_back(new MenuItem([]() { return std::string("...Back"); }, [this]() { _menu->_currentMenu = _parent; _currentItem = 0; }));
+    _items.push_back(new MenuItem([]() { return std::string("< Back"); }, [this]() { _menu->_currentMenu = _parent; _currentItem = 0; }));
 }
 
 Menu::Menu() :
